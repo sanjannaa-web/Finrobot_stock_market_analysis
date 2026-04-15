@@ -1,0 +1,56 @@
+=============================================
+Software Requirements Specification (SRS)
+=============================================
+
+1. Project Overview
+-------------------
+This project is a stock analysis application powered by AI. Originally dependent on a manual system-prompt large language model (LLM) implementation, the application is being upgraded to utilize the official FinRobot (AI4Finance-Foundation) framework. FinRobot natively supports multi-agent workflows specifically tailored toward financial data analysis and trading strategy. 
+
+2. Objective of the Application
+-------------------------------
+The objective is to provide end-users with real-time or daily insight into specific stock movements by synthesizing numerical data (price sequences, technical indicators) and qualitative data (news headlines). This allows for automated, AI-driven buy/sell recommendations with associated confidence scores.
+
+3. Technologies Used
+--------------------
+- Backend Framework: FastAPI (Python)
+- Core Financial AI Framework: Official FinRobot (AI4Finance-Foundation/FinRobot)
+- Data Fetching: yfinance (Yahoo Finance API)
+- News Insights: NewsAPI
+- Technical Indicators: Numpy/Pandas based RSI and Moving Average (static implementation)
+- LLM Provider: Groq (via official OpenAI client compatibility layer or FinRobot bindings)
+
+4. System Architecture
+----------------------
+The system utilizes a Client-Server architecture where the frontend (HTML/JS/CSS) communicates with the FastAPI backend. The FastAPI backend serves as an orchestration layer that fetches financial data via `yfinance` and news via `requests` to a news API. This data is then formatted and passed securely into the FinRobot framework. 
+FinRobot executes a Multi-Agent architecture, instantiating specific agents (like Financial Analysts, Risk Assessors, or Trading bots) derived directly from the official repository, which coordinate internally and return a finalized assessment.
+
+5. Description of Modules and Agents (Planned FinRobot Integration)
+-------------------------------------------------------------------
+- `main.py`: The entry point for the FastAPI server. Holds the REST endpoints.
+- `services/pipeline.py`: Orchestrator that takes data from the API endpoints and instantiates FinRobot agents.
+- `FinRobot Agents`: Specialized agent classes imported from the official `finrobot` module that read price trajectories and macro news to emit a synthesized trade recommendation.
+
+6. API Endpoint Descriptions
+----------------------------
+- `GET /api/companies`: Returns a static list of NIFTY 50 or default globally tracked companies.
+- `POST /api/predict/daily`: Accepts JSON `{symbol: str, dateType: str}`. Fetches daily historical data and calls the FinRobot pipeline. Returns a prediction.
+- `POST /api/predict/intraday`: Similar to daily, but fetches 30-minute interval data for either "today" or "yesterday" specifically.
+
+7. Data Flow Explanation
+------------------------
+1. User requests prediction for Symbol X.
+2. FastAPI calls `yfinance.Ticker` to get the last 15 days or intraday intervals.
+3. `main.py` computes technical indicators (RSI, MA) locally.
+4. `main.py` fetches the top 3 news headlines.
+5. All numerical and text data is passed into the FinRobot pipeline.
+6. FinRobot agents process the context collaboratively and return structured JSON.
+7. Backend forwards JSON to Frontend.
+
+8. How FinRobot is Being Used Internally
+---------------------------------------
+FinRobot is imported as a python API (`import finrobot`). The application uses FinRobot's native modules to replace the monolithic LLM calls, ensuring that expert financial reasoning logic is deferred to the framework.
+
+9. Assumptions and Limitations
+------------------------------
+- Assumption: The LLM model limits are large enough strictly to avoid context window truncation.
+- Limitation: Intraday predictive power is heavily dependent on the chosen timeframe and inherent noise. 

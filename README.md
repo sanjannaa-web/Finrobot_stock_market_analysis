@@ -1,1 +1,3 @@
-# Finrobot_stock_market_analysis   mini project 6th semester
+# finrobot-Group-5
+
+Finrobot Group 5 Project
